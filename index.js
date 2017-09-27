@@ -16,28 +16,6 @@ const accounts = [
     'weworkremotely',
 ];
 
-accounts.forEach(account => {
-
-    const params = {
-        screen_name: account,
-        count: 20
-    };
-
-    twitter.get('statuses/user_timeline', params, function(error, tweets, response) {
-
-        if (error) {
-            console.log(error);
-            return;
-        }
-
-        const jobs = filterMatch(tweets, 'developer');
-        const formated = formatObject(jobs);
-
-        console.log(formated);
-        console.log('----------------------------------');
-    });
-});
-
 // Return array with object matched
 function filterMatch(array, word) {
 
@@ -60,21 +38,25 @@ function formatObject(array) {
     });
 }
 
-// module.exports = (context, callback) => {
-//
-//     accounts.forEach((item) => {
-//
-//         const params = {
-//             screen_name: item.name
-//         };
-//
-//         twitter.get('statuses/user_timeline', params, function(error, tweets, response) {
-//             if (error) {
-//                 callback('Error');
-//             }
-//
-//             callback(tweets);
-//         });
-//     })
-//
-// }
+module.exports = (context, callback) => {
+    accounts.forEach(account => {
+
+        const params = {
+            screen_name: account,
+            count: 20
+        };
+
+        twitter.get('statuses/user_timeline', params, function(error, tweets, response) {
+
+            if (error) {
+                console.log(error);
+                return;
+            }
+
+            const jobs = filterMatch(tweets, 'developer');
+            const formated = formatObject(jobs);
+
+            callback(formated);
+        });
+    });
+}

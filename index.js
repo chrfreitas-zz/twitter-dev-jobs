@@ -11,38 +11,65 @@ const twitter = new Twitter({
 const accounts = [
     {
         name: 'Jobspresso',
-        lastId: 0
+        lastPostId: 0
     },
     {
         name: 'remote_co',
-        lastId: 0
+        lastPostId: 0
     },
     {
         name: 'remote_ok',
-        lastId: 0
+        lastPostId: 0
     },
     {
         name: 'workingnomads',
-        lastId: 0
+        lastPostId: 0
     },
     {
         name: 'weworkremotely',
-        lastId: 0
+        lastPostId: 0
     }
 ];
 
-module.exports = (context, callback) => {
+accounts.forEach((item) => {
 
     const params = {
-        screen_name: accounts[0].name
+        screen_name: item.name,
+        since_id: item.lastPostId || undefined
     };
 
     twitter.get('statuses/user_timeline', params, function(error, tweets, response) {
+
         if (error) {
-            callback('Error');
+            console.log(error);
+            return;
         }
 
-        callback(tweets);
-    });
+        var obj = {
+            name: tweets[0].user.name,
+            link: tweets[0].entities.urls[0].url
+        }
 
-}
+        console.log(obj);
+        console.log('----------------------------------');
+    });
+})
+
+// module.exports = (context, callback) => {
+//
+//     accounts.forEach((item) => {
+//
+//         const params = {
+//             screen_name: item.name
+//         };
+//
+//         twitter.get('statuses/user_timeline', params, function(error, tweets, response) {
+//             if (error) {
+//                 callback('Error');
+//             }
+//
+//             callback(tweets);
+//         });
+//     })
+//
+// }

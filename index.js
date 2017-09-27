@@ -31,14 +31,7 @@ accounts.forEach(account => {
         }
 
         const jobs = filterMatch(tweets, 'developer');
-
-        const formated = jobs.map(job => {
-            return {
-                name: job.user.name,
-                text: job.text,
-                link: job.entities.urls[0].url
-            }
-        });
+        const formated = formatObject(jobs);
 
         console.log(formated);
         console.log('----------------------------------');
@@ -47,10 +40,23 @@ accounts.forEach(account => {
 
 // Return array with object matched
 function filterMatch(array, word) {
-    const regex = new RegExp(word, 'g', 'i');
 
-    return array.filter(item => {
-        return item.text.match(regex)
+    if(!word){
+        return array;
+    }
+
+    const regex = new RegExp(word, 'g', 'i');
+    return array.filter(item => item.text.match(regex));
+}
+
+// Format array in object for better to see
+function formatObject(array) {
+    return array.map(item => {
+        return {
+            name: item.user.name,
+            text: item.text,
+            link: item.entities.urls[0].url
+        }
     });
 }
 

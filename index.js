@@ -31,11 +31,11 @@ const accounts = [
     }
 ];
 
-accounts.forEach((item) => {
+accounts.forEach((account) => {
 
     const params = {
-        screen_name: item.name,
-        since_id: item.lastPostId || undefined
+        screen_name: account.name,
+        since_id: account.lastPostId || undefined
     };
 
     twitter.get('statuses/user_timeline', params, function(error, tweets, response) {
@@ -45,12 +45,16 @@ accounts.forEach((item) => {
             return;
         }
 
+        var jobs = tweets.filter((tweet) => {            
+            return tweet.text.match(/Javascript/)
+        })
+
         var obj = {
             name: tweets[0].user.name,
             link: tweets[0].entities.urls[0].url
         }
 
-        console.log(obj);
+        console.log(jobs);
         console.log('----------------------------------');
     });
 })

@@ -9,33 +9,18 @@ const twitter = new Twitter({
 });
 
 const accounts = [
-    {
-        name: 'Jobspresso',
-        lastPostId: 0
-    },
-    {
-        name: 'remote_co',
-        lastPostId: 0
-    },
-    {
-        name: 'remote_ok',
-        lastPostId: 0
-    },
-    {
-        name: 'workingnomads',
-        lastPostId: 0
-    },
-    {
-        name: 'weworkremotely',
-        lastPostId: 0
-    }
+    'Jobspresso',
+    'remote_co',
+    'remote_ok',
+    'workingnomads',
+    'weworkremotely',
 ];
 
-accounts.forEach((account) => {
+accounts.forEach(account => {
 
     const params = {
-        screen_name: account.name,
-        since_id: account.lastPostId || undefined
+        screen_name: account,
+        count: 20
     };
 
     twitter.get('statuses/user_timeline', params, function(error, tweets, response) {
@@ -45,16 +30,18 @@ accounts.forEach((account) => {
             return;
         }
 
-        var jobs = tweets.filter((tweet) => {            
-            return tweet.text.match(/Javascript/)
-        })
+        const jobs = tweets.filter(tweet => {
+            return tweet.text.match(/developer/ig)
+        });
 
-        var obj = {
-            name: tweets[0].user.name,
-            link: tweets[0].entities.urls[0].url
-        }
+        const formated = jobs.map(job => {
+            return {
+                name: job.user.name,
+                link: job.entities.urls[0].url
+            }
+        });
 
-        console.log(jobs);
+        console.log(formated);
         console.log('----------------------------------');
     });
 })

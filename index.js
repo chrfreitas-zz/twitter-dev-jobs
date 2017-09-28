@@ -9,7 +9,6 @@ const twitter = new Twitter({
     access_token_key: '1556332994-mTdlKEoGy4A3ZxtAmtOI2h2kSKAFVRTdkZKIRcB',
     access_token_secret: 'XClcYPLkf6UHlUdwY28Cbn5u7xkPzXJIz4uvwRxCsl5KL'
 });
-
 const accounts = [
     'Jobspresso',
     'remote_co',
@@ -19,18 +18,18 @@ const accounts = [
 ];
 
 // Return array with object matched
-function filterMatch(array, word) {
+function filter(array, word) {
 
     if(!word){
         return array;
     }
 
     const regex = new RegExp(word, 'g', 'i');
+
     return array.filter(item => item.text.match(regex));
 }
 
-// Format array in object for better to see
-function formatObject(array) {
+function format(array){
     return array.map(item => {
         return {
             name: item.user.name,
@@ -39,36 +38,8 @@ function formatObject(array) {
         }
     });
 }
-//
-// var twitterPromises = accounts.map(account => {
-//
-//     const params = {
-//         screen_name: account,
-//         count: 20
-//     };
-//
-//     return twitter.get('statuses/user_timeline', params);
-// });
-//
-// Promise.all(twitterPromises)
-//        .then((response) => {
-//
-//            let formated = []
-//
-//             response.forEach(function(tweets) {
-//                 const jobs = filterMatch(tweets, 'developer');
-//                 formated.push(formatObject(jobs));
-//             });
-//
-//             console.log(formated)
-//
-//         .catch((error) => {
-//             console.log(error)
-//         })
-//
-// });
 
-module.exports = function(context, callback){
+//module.exports = function(context, callback){
 
     var twitterPromises = accounts.map(account => {
 
@@ -81,20 +52,23 @@ module.exports = function(context, callback){
     });
 
     Promise.all(twitterPromises)
-           .then((response) => {
+           .then(response => {
 
-               let formated = []
+               let jobs = []
 
                 response.forEach(function(tweets) {
-                    const jobs = filterMatch(tweets, 'developer');
-                    formated.push(formatObject(jobs));
+                    const matched = filter(tweets, 'developer');
+                    jobs.push(format(matched));
                 });
 
-                callback(formated)
-
-            .catch((error) => {
-                callback(error)
+                callback(jobs);
             })
+            .catch(error => {
+                callback(error);
+            })
+//}
 
-    });
+
+function callback(param){
+    console.log(param);
 }

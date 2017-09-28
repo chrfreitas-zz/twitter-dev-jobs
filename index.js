@@ -10,26 +10,31 @@ const accounts = [
     'remote_co',
     'remote_ok',
     'workingnomads',
-    'weworkremotely'
+    'weworkremotely',
+    'stackdevjobs',
+    'GitHubJobs'
 ];
 
-function filter(tweets, word) {
+function isMatch(tweet, word) {
 
     if(!word){
-        return tweets;
+        return tweet;
     }
 
     const regex = new RegExp(word, 'g', 'i');
 
-    return tweets.filter(item => item.text.match(regex));
+    return (tweet.text.match(regex));
 }
 
 function format(tweets){
     return tweets.map(item => {
+
+        const link = item.entities.urls.length ? item.entities.urls[0].url : 'No link :('
+
         return {
             name: item.user.name,
             text: item.text,
-            link: item.entities.urls[0].url
+            link
         }
     });
 }
@@ -44,6 +49,27 @@ function getPostsFrom(twitter, accounts) {
 
         return twitter.get('statuses/user_timeline', params);
     });
+}
+
+function serialize(tweets, word){
+    return tweets.reduce((total, posts) => {
+
+        // Filter just items that match with the word
+        const matches = posts.reduce((total, post) => {
+            if(isMatch(post, word)){
+                total.push(post);
+            }
+
+            return total;
+        }, []);
+
+        if(matches.length){
+            const formatted = format(matches);
+            total.push(formatted);
+        }
+
+        return total;
+    }, []);
 }
 
 module.exports = function(context, callback){
@@ -64,15 +90,7 @@ module.exports = function(context, callback){
 
     Promise.all(promises)
            .then(data => {
-
-               let jobs = []
-
-                callback(data);
-                data.forEach(function(tweets) {
-                    const matched = filter(tweets, context.data.keyWord);
-                    jobs.push(format(matched));
-                });
-
+               let jobs = serialize(data, context.data.keyWord);
                 callback(jobs);
             })
             .catch(error => {

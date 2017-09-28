@@ -3,12 +3,6 @@
 const Twitter = require('twitter');
 const Promise = require('promise')
 
-const twitter = new Twitter({
-    consumer_key: 'Xk0Amm1A181XR1N0to9aJUkuY',
-    consumer_secret: 'c9KMGo4C499CwhX3bPeoKrAwpGv9biETgBUZ8gDqSFtUPl9Iza',
-    access_token_key: '1556332994-mTdlKEoGy4A3ZxtAmtOI2h2kSKAFVRTdkZKIRcB',
-    access_token_secret: 'XClcYPLkf6UHlUdwY28Cbn5u7xkPzXJIz4uvwRxCsl5KL'
-});
 const accounts = [
     'Jobspresso',
     'remote_co',
@@ -17,19 +11,19 @@ const accounts = [
     'weworkremotely'
 ];
 
-function filter(array, word) {
+function filter(tweets, word) {
 
     if(!word){
-        return array;
+        return tweets;
     }
 
     const regex = new RegExp(word, 'g', 'i');
 
-    return array.filter(item => item.text.match(regex));
+    return tweets.filter(item => item.text.match(regex));
 }
 
-function format(array){
-    return array.map(item => {
+function format(tweets){
+    return tweets.map(item => {
         return {
             name: item.user.name,
             text: item.text,
@@ -38,12 +32,12 @@ function format(array){
     });
 }
 
-function getPostsFrom(accounts) {
+function getPostsFrom(twitter, accounts) {
     return accounts.map(account => {
 
         const params = {
             screen_name: account,
-            count: 25
+            count: 50
         };
 
         return twitter.get('statuses/user_timeline', params);
@@ -57,14 +51,22 @@ module.exports = function(context, callback){
         return;
     }
 
-    const promises = getPostsFrom(accounts);
+    const twitter = new Twitter({
+        consumer_key: context.secrets.CONSUMER_KEY,
+        consumer_secret: context.secrets.CONSUMER_SECRET,
+        access_token_key: context.secrets.TOKEN_KEY,
+        access_token_secret: context.secrets.TOKEN_SECRET
+    });
+
+    const promises = getPostsFrom(twitter, accounts);
 
     Promise.all(promises)
-           .then(response => {
+           .then(data => {
 
                let jobs = []
 
-                response.forEach(function(tweets) {
+                callback(data);
+                data.forEach(function(tweets) {
                     const matched = filter(tweets, context.data.keyWord);
                     jobs.push(format(matched));
                 });

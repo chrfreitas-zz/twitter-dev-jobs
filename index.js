@@ -17,7 +17,6 @@ const accounts = [
     'weworkremotely'
 ];
 
-// Return array with object matched
 function filter(array, word) {
 
     if(!word){
@@ -39,25 +38,34 @@ function format(array){
     });
 }
 
-//module.exports = function(context, callback){
-
-    var twitterPromises = accounts.map(account => {
+function getPostsFrom(accounts) {
+    return accounts.map(account => {
 
         const params = {
             screen_name: account,
-            count: 20
+            count: 25
         };
 
         return twitter.get('statuses/user_timeline', params);
     });
+}
 
-    Promise.all(twitterPromises)
+module.exports = function(context, callback){
+
+    if(!context.data.keyWord){
+        callback('It\'s required to pass a paramter named keyWork');
+        return;
+    }
+
+    const promises = getPostsFrom(accounts);
+
+    Promise.all(promises)
            .then(response => {
 
                let jobs = []
 
                 response.forEach(function(tweets) {
-                    const matched = filter(tweets, 'developer');
+                    const matched = filter(tweets, context.data.keyWord);
                     jobs.push(format(matched));
                 });
 
@@ -66,9 +74,4 @@ function format(array){
             .catch(error => {
                 callback(error);
             })
-//}
-
-
-function callback(param){
-    console.log(param);
 }

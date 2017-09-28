@@ -1,7 +1,5 @@
 'use strict'
 
-//wt create index.js -s CONSUMER_KEY=Xk0Amm1A181XR1N0to9aJUkuY -s CONSUMER_SECRET=c9KMGo4C499CwhX3bPeoKrAwpGv9biETgBUZ8gDqSFtUPl9Iza -s TOKEN_KEY=1556332994-mTdlKEoGy4A3ZxtAmtOI2h2kSKAFVRTdkZKIRcB -s TOKEN_SECRET=XClcYPLkf6UHlUdwY28Cbn5u7xkPzXJIz4uvwRxCsl5KL
-
 const Twitter = require('twitter');
 const Promise = require('promise')
 
@@ -14,6 +12,7 @@ const accounts = [
     'stackdevjobs',
     'GitHubJobs'
 ];
+const maxCount = 100;
 
 function isMatch(tweet, word) {
 
@@ -44,7 +43,7 @@ function getPostsFrom(twitter, accounts) {
 
         const params = {
             screen_name: account,
-            count: 100
+            count: maxCount
         };
 
         return twitter.get('statuses/user_timeline', params);

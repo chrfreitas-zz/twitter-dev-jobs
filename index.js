@@ -44,7 +44,7 @@ function getPostsFrom(twitter, accounts) {
 
         const params = {
             screen_name: account,
-            count: 50
+            count: 100
         };
 
         return twitter.get('statuses/user_timeline', params);

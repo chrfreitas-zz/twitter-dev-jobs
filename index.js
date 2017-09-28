@@ -1,5 +1,7 @@
+'use strict'
 
 const Twitter = require('twitter');
+const Promise = require('promise')
 
 const twitter = new Twitter({
     consumer_key: 'Xk0Amm1A181XR1N0to9aJUkuY',
@@ -13,7 +15,7 @@ const accounts = [
     'remote_co',
     'remote_ok',
     'workingnomads',
-    'weworkremotely',
+    'weworkremotely'
 ];
 
 // Return array with object matched
@@ -37,26 +39,62 @@ function formatObject(array) {
         }
     });
 }
+//
+// var twitterPromises = accounts.map(account => {
+//
+//     const params = {
+//         screen_name: account,
+//         count: 20
+//     };
+//
+//     return twitter.get('statuses/user_timeline', params);
+// });
+//
+// Promise.all(twitterPromises)
+//        .then((response) => {
+//
+//            let formated = []
+//
+//             response.forEach(function(tweets) {
+//                 const jobs = filterMatch(tweets, 'developer');
+//                 formated.push(formatObject(jobs));
+//             });
+//
+//             console.log(formated)
+//
+//         .catch((error) => {
+//             console.log(error)
+//         })
+//
+// });
 
-module.exports = (context, callback) => {
-    accounts.forEach(account => {
+module.exports = function(context, callback){
+
+    var twitterPromises = accounts.map(account => {
 
         const params = {
             screen_name: account,
             count: 20
         };
 
-        twitter.get('statuses/user_timeline', params, function(error, tweets, response) {
+        return twitter.get('statuses/user_timeline', params);
+    });
 
-            if (error) {
-                console.log(error);
-                return;
-            }
+    Promise.all(twitterPromises)
+           .then((response) => {
 
-            const jobs = filterMatch(tweets, 'developer');
-            const formated = formatObject(jobs);
+               let formated = []
 
-            callback(formated);
-        });
+                response.forEach(function(tweets) {
+                    const jobs = filterMatch(tweets, 'developer');
+                    formated.push(formatObject(jobs));
+                });
+
+                callback(formated)
+
+            .catch((error) => {
+                callback(error)
+            })
+
     });
 }
